@@ -11,23 +11,23 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'models/manga.dart';
-
+import 'providers/manga_api.dart';
 
 // A function that converts a response body into a List<Manga>.
-List<Manga> parseManga(String responseBody) {
-  final jsonData = jsonDecode(responseBody);
-  final parsed = jsonData['data'].cast<Map<String, dynamic>>();
-
-  return parsed.map<Manga>((json) => Manga.fromJson(json)).toList();
-}
-
-Future<List<Manga>> fetchManga(http.Client client, {int offset = 0}) async {
-  final response = await client
-      .get(Uri.https('api.mangadex.org','/manga',{'limit':'10','offset':'$offset'}));
-
-  // Use the compute function to run parseManga in a separate isolate.
-  return parseManga(response.body);
-}
+//List<Manga> parseManga(String responseBody) {
+//  final jsonData = jsonDecode(responseBody);
+//  final parsed = jsonData['data'].cast<Map<String, dynamic>>();
+//
+//  return parsed.map<Manga>((json) => Manga.fromJson(json)).toList();
+//}
+//
+//Future<List<Manga>> fetchManga(http.Client client, {int offset = 0}) async {
+//  final response = await client
+//      .get(Uri.https('api.mangadex.org','/manga',{'limit':'10','offset':'$offset'}));
+//
+//  // Use the compute function to run parseManga in a separate isolate.
+//  return parseManga(response.body);
+//}
 
 void main() => runApp(const MyApp());
 
@@ -45,62 +45,62 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: FutureBuilder<List<Manga>>(
-        future: fetchManga(http.Client()),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text('${snapshot.error}');
+//class MyHomePage extends StatelessWidget {
+//  const MyHomePage({super.key, required this.title});
+//
+//  final String title;
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return Scaffold(
+//      appBar: AppBar(
+//        title: Text(title),
+//      ),
+//      body: FutureBuilder<List<Manga>>(
+//        future: fetchManga(http.Client()),
+//        builder: (context, snapshot) {
+//          if (snapshot.hasError) {
+//            return Text('${snapshot.error}');
+////            return const Center(
+////              child: Text('${snapshot.error}'),
+////            );
+//          } else if (snapshot.hasData) {
+//            return MangaList(manga: snapshot.data!);
+//          } else {
 //            return const Center(
-//              child: Text('${snapshot.error}'),
+//              child: CircularProgressIndicator(),
 //            );
-          } else if (snapshot.hasData) {
-            return MangaList(manga: snapshot.data!);
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class MangaList extends StatelessWidget {
-  const MangaList({super.key, required this.manga});
-
-  final List<Manga> manga;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: manga.length * 2,
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return const Divider(); /*2*/
-
-          final index = i ~/ 2; /*3*/
-
-          return ListTile(
-            title: Text(
-              manga[index].title,
-            ),
-          );
-        },
-
-    );
-  }
-}
+//          }
+//        },
+//      ),
+//    );
+//  }
+//}
+//
+//class MangaList extends StatelessWidget {
+//  const MangaList({super.key, required this.manga});
+//
+//  final List<Manga> manga;
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return ListView.builder(
+//      itemCount: manga.length * 2,
+//        itemBuilder: /*1*/ (context, i) {
+//          if (i.isOdd) return const Divider(); /*2*/
+//
+//          final index = i ~/ 2; /*3*/
+//
+//          return ListTile(
+//            title: Text(
+//              manga[index].title,
+//            ),
+//          );
+//        },
+//
+//    );
+//  }
+//}
 
 class MangaHome extends StatelessWidget {
   const MangaHome({super.key, required this.title});
@@ -126,7 +126,7 @@ class MangaTitle extends StatefulWidget {
 
 class _MangaTitleState extends State<MangaTitle> {
 
-  final List<Manga> _manga = [];
+  List<Manga> _mangaTitle = [];
   late Future<List<Manga>> _futureManga;
   int offset = 0;
   final ScrollController _controller =
@@ -139,23 +139,13 @@ class _MangaTitleState extends State<MangaTitle> {
       if (isEnd) {
         setState(() {
           offset += 10;
-          _futureManga = getManga(client,offset: offset);
+          _futureManga = addMangaList(client,_mangaTitle,offset: offset);
           client.close();
         });
       };
     });
-    _futureManga = getManga(client,offset: offset);
+    _futureManga = fetchManga(client,offset: offset);
     client.close();
-  }
-
-  Future<List<Manga>> getManga(http.Client client, {int offset = 0}) async {
-    final response = await client
-        .get(Uri.https('api.mangadex.org','/manga',{'limit':'10','offset':'$offset'}));
-    final jsonData = jsonDecode(response.body);
-    final parsed = jsonData['data'].cast<Map<String, dynamic>>();
-    _manga.addAll(parsed.map<Manga>((json) => Manga.fromJson(json)).toList());
-
-    return _manga;
   }
 
   @override
@@ -170,10 +160,10 @@ class _MangaTitleState extends State<MangaTitle> {
             );
         } else if (snapshot.hasData) {
           //return MangaList(manga: snapshot.data!);
-          var mangaTitle = snapshot.data!;
+          _mangaTitle = snapshot.data!;
           //put infinite list here
           return ListView.builder(
-            itemCount: mangaTitle.length * 2,
+            itemCount: _mangaTitle.length * 2,
             controller: _controller,
             itemBuilder: /*1*/ (context, i) {
               if (i.isOdd) return const Divider(); /*2*/
@@ -186,7 +176,7 @@ class _MangaTitleState extends State<MangaTitle> {
 
               return ListTile(
                 title: Text(
-                  mangaTitle[index].title,
+                  _mangaTitle[index].title,
                 ),
               );
             },
