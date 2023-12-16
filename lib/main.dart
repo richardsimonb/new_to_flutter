@@ -5,29 +5,12 @@
 //import 'package:english_words/english_words.dart';
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-import 'dart:convert';
 import 'dart:async';
 
 import 'models/manga.dart';
 import 'providers/manga_api.dart';
-
-// A function that converts a response body into a List<Manga>.
-//List<Manga> parseManga(String responseBody) {
-//  final jsonData = jsonDecode(responseBody);
-//  final parsed = jsonData['data'].cast<Map<String, dynamic>>();
-//
-//  return parsed.map<Manga>((json) => Manga.fromJson(json)).toList();
-//}
-//
-//Future<List<Manga>> fetchManga(http.Client client, {int offset = 0}) async {
-//  final response = await client
-//      .get(Uri.https('api.mangadex.org','/manga',{'limit':'10','offset':'$offset'}));
-//
-//  // Use the compute function to run parseManga in a separate isolate.
-//  return parseManga(response.body);
-//}
+import 'providers/manga_list.dart';
 
 void main() => runApp(const MyApp());
 
@@ -125,42 +108,37 @@ class MangaTitle extends StatefulWidget {
 }
 
 class _MangaTitleState extends State<MangaTitle> {
-
   List<Manga> _mangaTitle = [];
-  late Future<List<Manga>> _futureManga;
+  late final Future<MangaList> _futureManga = MangadexList.create();
   int offset = 0;
   final ScrollController _controller =
-    ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
+      ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
 
   _MangaTitleState() {
-    http.Client client = http.Client();
     _controller.addListener(() {
       var isEnd = _controller.offset == _controller.position.maxScrollExtent;
       if (isEnd) {
         setState(() {
           offset += 10;
-          _futureManga = addMangaList(client,_mangaTitle,offset: offset);
-          client.close();
+          _futureManga.then((item) => item.addMangas(offset: offset));
         });
-      };
+      }
     });
-    _futureManga = fetchManga(client,offset: offset);
-    client.close();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Manga>>(
+    return FutureBuilder<MangaList>(
       future: _futureManga, //fetchManga(http.Client(), offset: offset),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
 //          return Text('${snapshot.error}');
-            return Center(
-              child: Text('${snapshot.error}'),
-            );
+          return Center(
+            child: Text('${snapshot.error}'),
+          );
         } else if (snapshot.hasData) {
           //return MangaList(manga: snapshot.data!);
-          _mangaTitle = snapshot.data!;
+          _mangaTitle = snapshot.data!.mangasList;
           //put infinite list here
           return ListView.builder(
             itemCount: _mangaTitle.length * 2,
@@ -180,10 +158,7 @@ class _MangaTitleState extends State<MangaTitle> {
                 ),
               );
             },
-
           );
-
-
         } else {
           return const Center(
             child: CircularProgressIndicator(),
