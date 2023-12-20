@@ -1,11 +1,4 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-//import 'package:english_words/english_words.dart';
-//import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'dart:async';
 
 import 'models/manga.dart';
@@ -27,63 +20,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-//class MyHomePage extends StatelessWidget {
-//  const MyHomePage({super.key, required this.title});
-//
-//  final String title;
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      appBar: AppBar(
-//        title: Text(title),
-//      ),
-//      body: FutureBuilder<List<Manga>>(
-//        future: fetchManga(http.Client()),
-//        builder: (context, snapshot) {
-//          if (snapshot.hasError) {
-//            return Text('${snapshot.error}');
-////            return const Center(
-////              child: Text('${snapshot.error}'),
-////            );
-//          } else if (snapshot.hasData) {
-//            return MangaList(manga: snapshot.data!);
-//          } else {
-//            return const Center(
-//              child: CircularProgressIndicator(),
-//            );
-//          }
-//        },
-//      ),
-//    );
-//  }
-//}
-//
-//class MangaList extends StatelessWidget {
-//  const MangaList({super.key, required this.manga});
-//
-//  final List<Manga> manga;
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return ListView.builder(
-//      itemCount: manga.length * 2,
-//        itemBuilder: /*1*/ (context, i) {
-//          if (i.isOdd) return const Divider(); /*2*/
-//
-//          final index = i ~/ 2; /*3*/
-//
-//          return ListTile(
-//            title: Text(
-//              manga[index].title,
-//            ),
-//          );
-//        },
-//
-//    );
-//  }
-//}
 
 class MangaHome extends StatelessWidget {
   const MangaHome({super.key, required this.title});
@@ -129,15 +65,13 @@ class _MangaTitleState extends State<MangaTitle> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<MangaList>(
-      future: _futureManga, //fetchManga(http.Client(), offset: offset),
+      future: _futureManga,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-//          return Text('${snapshot.error}');
           return Center(
             child: Text('${snapshot.error}'),
           );
         } else if (snapshot.hasData) {
-          //return MangaList(manga: snapshot.data!);
           _mangaTitle = snapshot.data!.mangasList;
           //put infinite list here
           return ListView.builder(
@@ -145,13 +79,7 @@ class _MangaTitleState extends State<MangaTitle> {
             controller: _controller,
             itemBuilder: /*1*/ (context, i) {
               if (i.isOdd) return const Divider(); /*2*/
-
               final index = i ~/ 2; /*3*/
-
-//              if (index >= mangaTitle.length) {
-//                offset += 10;
-//              }
-
               return ListTile(
                 title: Text(
                   _mangaTitle[index].title,
@@ -168,126 +96,3 @@ class _MangaTitleState extends State<MangaTitle> {
     );
   }
 }
-
-//
-//void main() {
-//  runApp(const MyApp());
-//}
-//
-//class MyApp extends StatelessWidget {
-//  const MyApp({super.key});
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return MaterialApp(
-//      title: 'Startup Name Generator',
-//      theme: ThemeData(
-//        // Add the 5 lines from here...
-//        appBarTheme: const AppBarTheme(
-//          backgroundColor: Colors.white,
-//          foregroundColor: Colors.black,
-//        ),
-//      ),
-//      home: RandomWords(),
-//    );
-//  }
-//}
-//
-//class RandomWords extends StatefulWidget {
-//  const RandomWords({super.key});
-//
-//  @override
-//  _RandomWordsState createState() => _RandomWordsState();
-//}
-//
-//class _RandomWordsState extends State<RandomWords> {
-//  final _suggestions = <WordPair>[];
-//  final _saved = <WordPair>{};
-//  final _biggerFont = const TextStyle(fontSize: 18);
-//
-//  void _pushSaved() {
-//    Navigator.of(context).push(
-//      MaterialPageRoute<void>(
-//        builder: (context) {
-//          final tiles = _saved.map(
-//            (pair) {
-//              return ListTile(
-//                title: Text(
-//                  pair.asPascalCase,
-//                  style: _biggerFont,
-//                ),
-//              );
-//            },
-//          );
-//          final divided = tiles.isNotEmpty
-//              ? ListTile.divideTiles(
-//                  context: context,
-//                  tiles: tiles,
-//                ).toList()
-//              : <Widget>[];
-//
-//          return Scaffold(
-//            appBar: AppBar(
-//              title: const Text('Saved Suggestions'),
-//            ),
-//            body: ListView(children: divided),
-//          );
-//        },
-//      ),
-//    );
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      // NEW from here ...
-//      appBar: AppBar(
-//        title: const Text('Startup Name Generator'),
-//        actions: [
-//          IconButton(
-//            icon: const Icon(Icons.list),
-//            onPressed: _pushSaved,
-//            tooltip: 'Saved Suggestions',
-//          ),
-//        ],
-//      ),
-//      body: ListView.builder(
-//        padding: const EdgeInsets.all(16.0),
-//        itemBuilder: /*1*/ (context, i) {
-//          if (i.isOdd) return const Divider(); /*2*/
-//
-//          final index = i ~/ 2; /*3*/
-//          if (index >= _suggestions.length) {
-//            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-//          }
-//
-//          final alreadySaved = _saved.contains(_suggestions[index]);
-//
-//          return ListTile(
-//            title: Text(
-//              _suggestions[index].asPascalCase,
-//              style: _biggerFont,
-//            ),
-//            trailing: Icon(
-//              // NEW from here ...
-//              alreadySaved ? Icons.favorite : Icons.favorite_border,
-//              color: alreadySaved ? Colors.red : null,
-//              semanticLabel: alreadySaved ? 'Remove from saved' : 'Save',
-//            ),
-//            onTap: () {
-//              // NEW from here ...
-//              setState(() {
-//                if (alreadySaved) {
-//                  _saved.remove(_suggestions[index]);
-//                } else {
-//                  _saved.add(_suggestions[index]);
-//                }
-//              }); // to here.
-//            },
-//          );
-//        },
-//      ),
-//    );
-//  }
-//}
-//
