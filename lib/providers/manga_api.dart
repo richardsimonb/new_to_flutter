@@ -2,33 +2,20 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import '../models/manga.dart';
-import 'manga_list.dart';
+import 'manga_provider.dart';
 
-class MangadexList extends MangaList {
-  final List<Manga> _mangas;
+class MangadexProvider extends MangaProvider {
 
-  MangadexList._(this._mangas);
+  final String _url = 'api.mangadex.org';
+  final http.Client _client = http.Client();
 
-  static Future<MangadexList> create() async {
-    final List<Manga> mangaList = await _fetchMangas();
-    return MangadexList._(mangaList);
-  }
-
-  static Future<List<Manga>> _fetchMangas({int offset = 0}) async {
-    final http.Client client = http.Client();
-    final response = await client.get(Uri.https(
-        'api.mangadex.org', '/manga', {'limit': '10', 'offset': '$offset'}));
+  @override
+  Future<List<Manga>> fetchAll({int offset = 0}) async {
+    final response = await _client.get(Uri.https(
+        _url, '/manga', {'limit': '10', 'offset': '$offset'}));
     final jsonData = jsonDecode(response.body);
     final parsed = jsonData['data'].cast<Map<String, dynamic>>();
-    client.close();
+    _client.close();
     return parsed.map<Manga>((json) => Manga.fromJson(json)).toList();
   }
-
-  @override
-  Future<void> addMangas({int offset = 0}) async {
-    _mangas.addAll(await _fetchMangas(offset: offset));
-  }
-
-  @override
-  List<Manga> get mangasList => _mangas;
 }
