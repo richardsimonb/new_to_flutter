@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:new_to_flutter/providers/manga_api.dart';
 import 'dart:async';
 
 import 'models/manga.dart';
-import 'providers/manga_api.dart';
-import 'providers/manga_list.dart';
+import 'repository/manga_repository.dart';
 
 void main() => runApp(const MyApp());
 
@@ -45,7 +45,8 @@ class MangaTitle extends StatefulWidget {
 
 class _MangaTitleState extends State<MangaTitle> {
   List<Manga> _mangaTitle = [];
-  late final Future<MangaList> _futureManga = MangadexList.create();
+  final MangaRepository mangaRepository = MangaRepository(MangadexProvider());
+  late final Future<List<Manga>> _futureManga = mangaRepository.getMultiple();
   int offset = 0;
   final ScrollController _controller =
       ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
@@ -56,7 +57,7 @@ class _MangaTitleState extends State<MangaTitle> {
       if (isEnd) {
         setState(() {
           offset += 10;
-          _futureManga.then((item) => item.addMangas(offset: offset));
+          _futureManga.then((value) async => value.addAll(await mangaRepository.getMultiple(offset: offset)));
         });
       }
     });
@@ -64,7 +65,7 @@ class _MangaTitleState extends State<MangaTitle> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MangaList>(
+    return FutureBuilder<List<Manga>>(
       future: _futureManga,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -72,7 +73,7 @@ class _MangaTitleState extends State<MangaTitle> {
             child: Text('${snapshot.error}'),
           );
         } else if (snapshot.hasData) {
-          _mangaTitle = snapshot.data!.mangasList;
+          _mangaTitle = snapshot.data!;
           //put infinite list here
           return ListView.builder(
             itemCount: _mangaTitle.length * 2,
