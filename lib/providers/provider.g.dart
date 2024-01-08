@@ -1,12 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'notifier.dart';
+part of 'provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$listMangaHash() => r'13dedf9b3da471cd7c48099f3e40ba234680901e';
+String _$mangaRepositoryHash() => r'5878a12b934e678ae3cd18460dd70143e921d772';
+
+/// See also [mangaRepository].
+@ProviderFor(mangaRepository)
+final mangaRepositoryProvider = AutoDisposeProvider<MangaRepository>.internal(
+  mangaRepository,
+  name: r'mangaRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$mangaRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef MangaRepositoryRef = AutoDisposeProviderRef<MangaRepository>;
+String _$listMangaHash() => r'52aea80250829a63a2b8202bf5d56ece989dafcb';
 
 /// See also [ListManga].
 @ProviderFor(ListManga)
