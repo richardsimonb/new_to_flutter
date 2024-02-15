@@ -13,8 +13,8 @@ class MangadexProvider extends MangaProvider {
   Future<List<Manga>> fetchAll({int offset = 0}) async {
     final response = await _client.get(Uri.https(
         _url, '/manga', {'limit': '10', 'offset': '$offset'}));
-    final jsonData = jsonDecode(response.body);
-    final parsed = jsonData['data'].cast<Map<String, dynamic>>();
+    final Map<String, dynamic> jsonData = jsonDecode(response.body);
+    final parsed = (jsonData['data'] as List).cast<Map<String, dynamic>>();
     _client.close();
     return parsed.map<Manga>((json) => Manga.fromJson(json)).toList();
   }

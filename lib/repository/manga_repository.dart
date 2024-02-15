@@ -1,12 +1,13 @@
 import '../models/manga.dart';
 import '../providers/manga_provider.dart';
 
-class MangaRepository {
-  final MangaProvider _mangaProvider;
+class MangaRepository{
+  final MangaProvider mangaProvider;
 
-  MangaRepository(this._mangaProvider);
+  MangaRepository({required this.mangaProvider});
 
   Future<List<Manga>> getMultiple({int offset = 0}) async {
-    return await _mangaProvider.fetchAll(offset: offset);
+    return await mangaProvider.fetchAll(offset: offset);
   }
+
 }

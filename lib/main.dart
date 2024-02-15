@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:new_to_flutter/providers/manga_api.dart';
+import 'package:new_to_flutter/providers/provider.dart';
 import 'dart:async';
 
 import 'models/manga.dart';
 import 'repository/manga_repository.dart';
 
-void main() => runApp(const MyApp());
+final mangaRepositoryProvider = Provider<MangaRepository>((ref) {
+  return MangaRepository(mangaProvider: MangadexProvider());
+});
+
+void main() => runApp(const ProviderScope(child: MyApp()) );
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const appTitle = 'Isolate Demo';
+    const appTitle = 'Riverpod Mangadex';
 
     return const MaterialApp(
       title: appTitle,
@@ -21,32 +27,42 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MangaHome extends StatelessWidget {
+class MangaHome extends ConsumerWidget {
   const MangaHome({super.key, required this.title});
 
   final String title;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    int counter = 10;
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
-      body: const MangaTitle(),
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(listMangaProvider.future),
+        child: const MangaList(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async{
+          ref.read(listMangaProvider.notifier).getMoreManga(offset: counter);
+          counter+= 10;
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
 
-class MangaTitle extends StatefulWidget {
+class MangaTitle extends ConsumerStatefulWidget {
   const MangaTitle({super.key});
 
   @override
-  State<MangaTitle> createState() => _MangaTitleState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _MangaTitleState();
 }
 
-class _MangaTitleState extends State<MangaTitle> {
+class _MangaTitleState extends ConsumerState<MangaTitle> {
   List<Manga> _mangaTitle = [];
-  final MangaRepository mangaRepository = MangaRepository(MangadexProvider());
-  late final Future<List<Manga>> _futureManga = mangaRepository.getMultiple();
+  late final Future<List<Manga>> _futureManga = ref.read(mangaRepositoryProvider).getMultiple();
   int offset = 0;
   final ScrollController _controller =
       ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
@@ -57,7 +73,7 @@ class _MangaTitleState extends State<MangaTitle> {
       if (isEnd) {
         setState(() {
           offset += 10;
-          _futureManga.then((value) async => value.addAll(await mangaRepository.getMultiple(offset: offset)));
+          _futureManga.then((value) async => value.addAll(await ref.read(mangaRepositoryProvider).getMultiple(offset: offset)));
         });
       }
     });
@@ -83,7 +99,7 @@ class _MangaTitleState extends State<MangaTitle> {
               final index = i ~/ 2; /*3*/
               return ListTile(
                 title: Text(
-                  _mangaTitle[index].title,
+                  _mangaTitle[index].id,
                 ),
               );
             },
@@ -95,5 +111,38 @@ class _MangaTitleState extends State<MangaTitle> {
         }
       },
     );
+  }
+}
+
+class MangaList extends ConsumerWidget{
+  const MangaList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref){
+    final AsyncValue<List<Manga>> mangaTitle = ref.watch(listMangaProvider);
+
+    if(mangaTitle.hasValue) {
+      return ListView.builder(
+        itemCount: mangaTitle.value!.length * 2,
+        itemBuilder: (context, i) {
+          if (i.isOdd) return const Divider();
+          final index = i ~/ 2;
+          return ListTile(
+            title: Text(
+              mangaTitle.value![index].attributes.title.values.first,
+            ),
+          );
+        },
+      );
+    } else if(mangaTitle.isLoading) {
+      return  const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      return  const Center(
+        child: Text("error"),
+      );
+    }
+
   }
 }

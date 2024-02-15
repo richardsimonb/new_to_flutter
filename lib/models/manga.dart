@@ -1,16 +1,26 @@
-class Manga {
-  final String id;
-  final String title;
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
-  const Manga({
-    required this.id,
-    required this.title,
-  });
+part 'manga.freezed.dart';
+part 'manga.g.dart';
 
-  factory Manga.fromJson(Map<String, dynamic> json) {
-    return Manga(
-      id: json['id'] as String,
-      title: json['attributes']['title']['en'] ?? "No Title",
-    );
-  }
+@freezed
+class Manga with _$Manga {
+  const factory Manga({
+    required String id,
+    required Attributes attributes,
+  }) = _Manga;
+
+  factory Manga.fromJson(Map<String, dynamic> json)
+    => _$MangaFromJson(json);
+}
+
+@freezed
+class Attributes with _$Attributes{
+  const factory Attributes({
+    required Map<String, dynamic> title
+  }) = _Attributes;
+
+  factory Attributes.fromJson(Map<String, dynamic> json)
+    => _$AttributesFromJson(json);
 }
