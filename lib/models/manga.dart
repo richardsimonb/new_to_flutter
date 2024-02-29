@@ -8,7 +8,8 @@ part 'manga.g.dart';
 class Manga with _$Manga {
   const factory Manga({
     required String id,
-    required Attributes attributes,
+    @JsonKey(name: 'attributes')
+    required MangaAttributes attributes,
   }) = _Manga;
 
   factory Manga.fromJson(Map<String, dynamic> json)
@@ -16,11 +17,11 @@ class Manga with _$Manga {
 }
 
 @freezed
-class Attributes with _$Attributes{
-  const factory Attributes({
+class MangaAttributes with _$MangaAttributes{
+  const factory MangaAttributes({
     required Map<String, dynamic> title
-  }) = _Attributes;
+  }) = _MangaAttributes;
 
-  factory Attributes.fromJson(Map<String, dynamic> json)
-    => _$AttributesFromJson(json);
+  factory MangaAttributes.fromJson(Map<String, dynamic> json)
+    => _$MangaAttributesFromJson(json);
 }
