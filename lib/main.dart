@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:new_to_flutter/providers/manga_api.dart';
 
-import 'repository/manga_repository.dart';
-import 'widgets/manga_home.dart';
-
-final mangaRepositoryProvider = Provider<MangaRepository>((ref) {
-  return MangaRepository(mangaProvider: MangadexProvider());
-});
+import 'features/manga/presentation/manga_home.dart';
 
 void main() => runApp(const ProviderScope(child: MyApp()) );
 

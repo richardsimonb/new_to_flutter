@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:new_to_flutter/providers/provider.dart';
+import 'package:new_to_flutter/features/manga/application/providers.dart';
 
-import '/models/manga.dart';
+import '../domain/manga.dart';
 
 class MangaList extends ConsumerWidget{
   const MangaList({super.key});

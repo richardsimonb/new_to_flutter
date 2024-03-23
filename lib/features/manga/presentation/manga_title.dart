@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:new_to_flutter/providers/provider.dart';
 
-import '/models/manga.dart';
+import '../domain/manga.dart';
+import '../data/manga_repository.dart';
 
 class MangaTitle extends ConsumerStatefulWidget {
   const MangaTitle({super.key});
